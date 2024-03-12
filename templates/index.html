@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with AI Family Doctor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --background-color: #121212; /* Matte black */
+            --primary-color: #7a1663; /* Dark purple */
+            --secondary-color: #03dac6; /* Light green */
+            --text-primary-color: #ffffff; /* White */
+            --text-secondary-color: #424040; /* Black */
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-primary-color);
+            margin: 0;
+            padding: 0;
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+
+        .contact-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .online-indicator {
+            width: 10px;
+            height: 10px;
+            background-color: var(--secondary-color);
+            border-radius: 50%;
+            margin-left: 5px;
+        }
+
+        .ellipsis-menu {
+            position: absolute;
+            top: 0;
+            right: 0;
+            padding: 10px;
+            cursor: pointer;
+            color: var(--text-primary-color);
+            font-size: 20px;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: var(--background-color);
+            min-width: 160px;
+            box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+
+        .dropdown-content a {
+            color: var(--text-primary-color);
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .dropdown-content a:hover {
+            background-color: var(--primary-color);
+        }
+
+        main {
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .message-bubble {
+            max-width: 70%;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .user-message {
+            align-self: end;
+            background-color: var(--primary-color); /* Dark purple color for messages you send */
+            color: var(--text-primary-color); /* White text color */
+        }
+
+        .contact-message {
+            align-self: start;
+            background-color: #A9A9A9; /* Light black color for messages you receive */
+            color: var(--text-secondary-color); /* Black text color */
+        }
+
+        footer {
+            padding: 10px;
+            background-color: var(--text-primary-color);
+            display: flex;
+            align-items: center;
+        }
+
+        input[type="text"] {
+            flex-grow: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            margin-right: 10px;
+            font-size: 16px;
+            color: var(--text-primary-color); /* White text color */
+            background-color: var(--background-color);
+        }
+
+        .send-button {
+            padding: 10px 15px;
+            background-color: var(--secondary-color); /* Light green color */
+            border: none;
+            border-radius: 5px;
+            color: var(--text-primary-color);
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .restart-button {
+            margin-left: 10px;
+            padding: 10px 15px;
+            background-color: #FF4500; /* Orange-Red color for restart button */
+            border: none;
+            border-radius: 5px;
+            color: var(--text-primary-color);
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        @media (max-width: 600px) {
+            .message-bubble {
+                max-width: 90%;
+            }
+        }
+
+        /* Reaction icon styles */
+        .reaction-icons {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 5px;
+        }
+
+        .reaction-icon {
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            padding: 2px 5px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="contact-info">
+            <span>Contact: Family Doctor</span>
+            <div class="online-indicator"></div>
+        </div>
+        <div class="ellipsis-menu" onclick="toggleDropdown()">
+            …
+            <div class="dropdown-content" id="dropdownContent">
+                <a href="javascript:void(0)" onclick="displayContact()">Connect Us</a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Chat bubbles will be dynamically added here -->
+    </main>
+
+    <footer>
+        <input type="text" placeholder="Type your message..." id="chatInput">
+        <button class="send-button" onclick="sendMessage()">Send</button>
+        <button class="restart-button" onclick="restartChat()">Restart Chat</button>
+    </footer>
+
+    <script>
+        var chatInput = document.getElementById('chatInput');
+        var chatBox = document.querySelector('main');
+
+        function sendMessage() {
+            var message = chatInput.value;
+            if (message.trim() !== '') {
+                var bubble = document.createElement('div');
+                bubble.classList.add('message-bubble', 'user-message');
+                var messageText = document.createElement('span');
+                messageText.classList.add('message-text');
+                messageText.textContent = message;
+                bubble.appendChild(messageText);
+
+                var reactionIconsContainer = document.createElement('div');
+                reactionIconsContainer.classList.add('reaction-icons');
+                bubble.appendChild(reactionIconsContainer);
+
+                chatBox.appendChild(bubble);
+                chatInput.value = '';
+
+                // Add the reaction icon
+                var reactionIcon = document.createElement('div');
+                reactionIcon.classList.add('reaction-icon');
+                reactionIcon.textContent = '👍'; // Default icon
+                reactionIcon.addEventListener('click', toggleReaction);
+                reactionIconsContainer.appendChild(reactionIcon);
+
+                // Send the message to the server and get the response
+                fetch('/get_response', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `user_input=${encodeURIComponent(message)}`,
+                })
+                .then(response => response.json())
+                .then(data => {
+                    var botMessage = data.response;
+                    var botBubble = document.createElement('div');
+                    botBubble.classList.add('message-bubble', 'contact-message');
+                    botBubble.textContent = botMessage;
+                    chatBox.appendChild(botBubble);
+                });
+            }
+        }
+
+        function restartChat() {
+            chatBox.innerHTML = '';
+        }
+
+        function displayContact() {
+            alert('Contact us at:primedialoguetechnologies@gmail.com');
+        }
+
+        function toggleDropdown() {
+            var dropdownContent = document.getElementById('dropdownContent');
+            dropdownContent.style.display = dropdownContent.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function toggleReaction(event) {
+            var target = event.currentTarget;
+            if (target.textContent === '👍') {
+                target.textContent = 'D'; // Change to your preferred 'D' icon or emoji
+                target.style.backgroundColor = '#03dac6'; // Change to your preferred color
+            } else {
+                target.textContent = '👍';
+                target.style.backgroundColor = '';
+            }
+        }
+
+        // Add event listener for "Enter" key
+        chatInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();  // Prevents the default action to be triggered (form submission)
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
